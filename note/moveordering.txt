@@ -1,0 +1,26 @@
+D手だけ深く読むmoveorderingの処理の動きをまとめる
+①D-1手だけ読み、その時通ったノード（局面）の値をformer_transpose_tableに格納する
+②former_transpose_tableに格納された値をもとにchild_nodes（その局面における合法種を打った後の盤面が格納されてる）を並び替える
+③そのchild_nodesを既存のsurch関数(transpose_tableによる枝狩り、αβカット搭載、negamax)に入れる
+
+
+surch_moveordering(d){
+moveordering(d-1)
+surch(d-1);
+
+}
+
+
+①・former_transpose_table→unordered_map<board, int, board::hash>former_transpose_table
+　・既存のsurc
+②・child_nodes→vector<board> child_nodes
+　・ソートする関数→sort(child_nodes)
+  ・ソートする関数を動かす部品
+③/
+
+
+
+operaterの役割は以下のもので正しいですか？
+・unoerderdmapから値を取り出す際に同地判定を行う
+・vector<board> child_nodesをソートする際に大小判定を行う
+
