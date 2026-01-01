@@ -204,7 +204,7 @@ int set_depth(){
 int main(){
     std::cin;
     board b;
-    int depth=10;
+    int depth=7;
 
     // 初期化
     init_board();
