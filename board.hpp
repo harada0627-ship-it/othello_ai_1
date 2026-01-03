@@ -1,5 +1,5 @@
-#include <iostream>
 #pragma once
+#include <iostream>
 
 using namespace std;
 #define hw  8
@@ -22,7 +22,7 @@ const int global_place[n_board_idx][hw]
 const int global_move[n_board_idx]
 {
     1,1,1,1,1,1,1,1,//横
-    1,1,1,1,1,1,1,1,//縦
+    8,8,8,8,8,8,8,8,//縦
     9,9,9,9,9,9,9,9,9,9,9,//右下がりの斜め
     7,7,7,7,7,7,7,7,7,7,7//左下がりの斜め
 };
@@ -33,8 +33,8 @@ const int global_move[n_board_idx]
 
 int move_arr[2][n_line][hw][2];
 int legal_arr[2][n_line][hw];
-int place_included[hw2][4];
-int local_place[hw2][4];
+int place_included[hw2][4];//idxnumber
+int local_place[hw2][4];//idx内でのposition
 int flip_arr[2][n_line][hw];
 int put_arr[2][n_line][hw];
 int pop_digit[n_line][hw];
@@ -66,7 +66,7 @@ inline int trans(const int pt, const int k) {
 }
 
 
-// あるビットボードにおいて着手したとき返す石の数をカウント（左右）それぞれにおいて
+// あるビットボードにおいて着手したとき返す石の数をカウント左右それぞれにおいて
 inline int move_line_half(const int p, const int o, const int place, const int k) {
     int mask;
     int res = 0;
@@ -270,7 +270,7 @@ bool operator!=(const board& another) const {
         line= place_included[g_place][i];
         if (line == -1) break;
         p=local_place[g_place][i];
-            if(legal_arr[player][board_idx[line]][p]==true)
+            if(legal_arr[this->player][this->board_idx[line]][p]==true)
            return true;
         }
         return false;

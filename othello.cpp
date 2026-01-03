@@ -206,12 +206,16 @@ int main(){
     board b;
     int depth=7;
 
-    // 初期化
+    // 初期化 
+    
+    //aiの読みの深さを設定
+    //printf("aiの読みの深さを設定\n");
+    //scanf("%d",depth);
     init_board();
     evaluate_init();
     init_game(b);
     print();
-    //aiの読みの深さを設定
+  
     //depth=set_depth();
 
 

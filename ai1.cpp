@@ -28,7 +28,7 @@ int moveordering_evaluate(const board& b) {
     if (it != former_transpose_table.end()) {
         return bonus - it->second.value;    
     }
-    return -evaluate(b);
+    return evaluate(b);
 }
 
 
@@ -79,28 +79,29 @@ int nega_alpha(board b, int depth, bool passed, int alpha, int beta) {
     transpose_table[b].value = max_score;//TTを更新（exact
     return max_score;
 }
+//negascout法
 int nega_scout(board b, int depth, bool passed, int alpha, int beta) {
     visited_nodes++;
-
-    // TT probe
     auto it = transpose_table.find(b);
-    if (it != transpose_table.end() && it->second.depth >= depth) {
-        int bound = it->second.value;
-
-        if (it->second.flag == HIGH) {          // 下限(LOWER)
-            alpha = std::max(alpha, bound);
-        } else if (it->second.flag == LOW) {    // 上限(UPPER)
-            beta = std::min(beta, bound);
-        } else {                                // EXACT
-            return bound;
+    if (it != transpose_table.end() && it->second.depth >=depth)//depthに有用性があるとき
+    {
+        int boader;
+        if(it->second.flag == HIGH)
+        {
+         boader=it->second.value;
+         alpha=max(alpha,boader);
         }
-
-        if (alpha >= beta) return bound; // ★追加：窓が潰れたら即返す
+        else  if(it->second.flag == LOW){
+          boader=it->second.value;
+          beta=min(beta,boader);
+        }
+        else
+         return it->second.value;
     }
+    if (depth == 0)
+        return evaluate(b);
 
-    if (depth == 0) return evaluate(b);
-
-    std::vector<board> child_nodes;
+    vector<board> child_nodes;
     for (int i = 0; i < hw2; ++i) {
         if (b.legal_place(i)) {
             board nb = b.move(i);
@@ -115,53 +116,48 @@ int nega_scout(board b, int depth, bool passed, int alpha, int beta) {
         return -nega_scout(b, depth, true, -beta, -alpha);
     }
 
-    std::sort(child_nodes.begin(), child_nodes.end());
+    sort(child_nodes.begin(), child_nodes.end());
 
-    int origAlpha = alpha;        // ★追加：fail-low判定用
     int max_score = -inf;
-
-    bool first = true;
+    int g;
+    
+     bool first=true;
     for (const board& nb : child_nodes) {
-        int g;
-
-        if (first) {
+        auto it_n = transpose_table.find(nb);
+        if(first){
+         g = -nega_scout(nb, depth-1,false, -beta,-alpha);
+         first=false;
+    }else{
+       g = -nega_scout(nb, depth - 1, false, -(alpha+1), -alpha);
+          if (g > alpha && g < beta) {
             g = -nega_scout(nb, depth - 1, false, -beta, -alpha);
-            first = false;
-        } else {
-            g = -nega_scout(nb, depth - 1, false, -(alpha + 1), -alpha);
-            if (g > alpha && g < beta) {
-                g = -nega_scout(nb, depth - 1, false, -beta, -alpha);
-            }
         }
+    } 
+ alpha = max(alpha, g);
+        max_score = max(max_score, g);
 
-        // βカット（fail-high）→ 下限(HIGH) 保存して即 return
-        if (g >= beta) {
-            transpose_table[b].value = g;
-            transpose_table[b].flag  = HIGH;
-            transpose_table[b].depth = depth;   // ★depth-1 ではなく depth
+if (g >= beta){//βかっと
+        //TTに格納
+         transpose_table[b].value = g;
+         transpose_table[b].flag = HIGH;
+         transpose_table[b].depth = depth-1;
             return g;
         }
-
-        if (g > max_score) max_score = g;
-        if (g > alpha) alpha = g;
     }
-
-    // ここまで来た＝βカットなし
-    if (max_score <= origAlpha) {
-        // fail-low → 上限(LOW)
-        transpose_table[b].value = max_score;   // ★betaではなくmax_score推奨
-        transpose_table[b].flag  = LOW;
-        transpose_table[b].depth = depth;       // ★depth-1 ではなく depth
-    } else {
-        // window内 → EXACT
-        transpose_table[b].value = max_score;
-        transpose_table[b].flag  = EXACT;
-        transpose_table[b].depth = depth;
-    }
-
+     if(alpha>max_score){
+             //TTに格納
+         transpose_table[b].value = beta;
+         transpose_table[b].flag = LOW;
+         transpose_table[b].depth = depth-1;
+        }else {
+             //TTに格納
+         transpose_table[b].value = max_score;
+         transpose_table[b].flag = EXACT;
+         transpose_table[b].depth = depth-1;
+        }
+    
     return max_score;
 }
-
 
 
 
