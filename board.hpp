@@ -225,8 +225,9 @@ class board{
     bool operator==(const board& another) const {
         if(this->player!=another.player)
         return false;
-        if(this->board_idx!=another.board_idx)
-        return false;
+             for (int i = 0; i < hw; ++i) {          // hw=8
+        if (board_idx[i] != another.board_idx[i]) return false;
+    }
 
     return true;
 }
